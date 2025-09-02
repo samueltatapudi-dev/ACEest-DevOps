@@ -1,4 +1,5 @@
 # ACEest Fitness Flask App
+[![CI](https://github.com/samueltatapudi-dev/ACEest-DevOps/actions/workflows/ci.yml/badge.svg?branch=main)](https://github.com/samueltatapudi-dev/ACEest-DevOps/actions/workflows/ci.yml)
 
 A minimal Flask application for the ACEest_Fitness and Gym scenario, with unit tests, Docker containerization, and CI via GitHub Actions.
 
