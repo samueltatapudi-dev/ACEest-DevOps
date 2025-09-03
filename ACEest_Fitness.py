@@ -36,6 +36,9 @@ class FitnessTrackerApp:
 
         try:
             duration = int(duration_str)
+            if duration < 0:
+                messagebox.showerror("Error", "Duration must be non-negative.")
+                return
             self.workouts.append({"workout": workout, "duration": duration})
             messagebox.showinfo("Success", f"'{workout}' added successfully!")
             self.workout_entry.delete(0, tk.END)
