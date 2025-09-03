@@ -1,8 +1,13 @@
+import os
 from flask import Flask, jsonify, request, render_template
 
 
 def create_app() -> Flask:
     app = Flask(__name__)
+
+    # Config with environment overrides
+    max_duration = int(os.environ.get("MAX_DURATION", 1440))
+    max_name_len = int(os.environ.get("MAX_NAME_LEN", 100))
 
     @app.get("/")
     def index():
@@ -34,12 +39,16 @@ def create_app() -> Flask:
         workout = str(data.get("workout", "")).strip()
         if not workout:
             return jsonify({"error": "'workout' is required"}), 400
+        if len(workout) > max_name_len:
+            return jsonify({"error": f"'workout' length must be <= {max_name_len}"}), 400
 
         duration = data.get("duration", None)
         if not isinstance(duration, int):
             return jsonify({"error": "'duration' must be an integer"}), 400
         if duration < 0:
             return jsonify({"error": "'duration' must be non-negative"}), 400
+        if duration > max_duration:
+            return jsonify({"error": f"'duration' must be <= {max_duration}"}), 400
 
         # Reject duplicate workout names (case-insensitive, whitespace-insensitive)
         normalized = workout.lower()
@@ -61,7 +70,8 @@ app = create_app()
 
 
 if __name__ == "__main__":
-    app.run(host="0.0.0.0", port=5000)
+    port = int(os.environ.get("PORT", 5000))
+    app.run(host="0.0.0.0", port=port)
 
 
  #ADD TEST CASE FOR DUPLICATE WORKOUT NAMES

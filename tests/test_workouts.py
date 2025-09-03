@@ -62,11 +62,24 @@ def test_workouts_missing_duration_key_rejected(client):
 
 
 def test_workouts_large_duration_allowed(client):
-    # Large but valid integer should be accepted
-    large = 10_000_000
+    # Large but valid integer should be accepted up to default cap (1440)
+    large = 1440
     resp = client.post("/workouts", json={"workout": "ultra", "duration": large})
     assert resp.status_code == 201
     assert resp.get_json() == {"workout": "ultra", "duration": large}
+
+
+def test_workouts_duration_over_cap_rejected(client):
+    resp = client.post("/workouts", json={"workout": "marathon", "duration": 1441})
+    assert resp.status_code == 400
+    assert "error" in resp.get_json()
+
+
+def test_workouts_name_length_cap(client):
+    long_name = "x" * 101
+    resp = client.post("/workouts", json={"workout": long_name, "duration": 10})
+    assert resp.status_code == 400
+    assert "error" in resp.get_json()
 
 
 def test_workouts_reject_duplicate_names(client):
