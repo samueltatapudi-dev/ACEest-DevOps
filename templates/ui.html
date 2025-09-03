@@ -1,0 +1,88 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>ACEest Fitness UI</title>
+    <style>
+      body { font-family: system-ui, -apple-system, Segoe UI, Roboto, sans-serif; margin: 2rem; }
+      h1 { margin-top: 0; }
+      form { display: flex; gap: .5rem; align-items: center; margin-bottom: 1rem; }
+      input { padding: .4rem .6rem; }
+      button { padding: .45rem .8rem; cursor: pointer; }
+      ul { padding-left: 1.25rem; }
+      .error { color: #b00020; margin:.5rem 0; }
+      .success { color: #0a7c2f; margin:.5rem 0; }
+    </style>
+  </head>
+  <body>
+    <h1>ACEest Fitness</h1>
+    <p>Simple UI over the existing API. Data is in-memory and resets on restart.</p>
+
+    <form id="add-form">
+      <input id="workout" placeholder="Workout (e.g., run)" required />
+      <input id="duration" type="number" placeholder="Duration (minutes)" min="0" required />
+      <button type="submit">Add Workout</button>
+    </form>
+    <div id="msg"></div>
+
+    <h2>Workouts</h2>
+    <ul id="list"></ul>
+
+    <script>
+      const listEl = document.getElementById('list');
+      const msgEl = document.getElementById('msg');
+      const form = document.getElementById('add-form');
+      const workoutEl = document.getElementById('workout');
+      const durationEl = document.getElementById('duration');
+
+      function setMsg(text, ok=false) {
+        msgEl.textContent = text;
+        msgEl.className = ok ? 'success' : 'error';
+      }
+
+      async function load() {
+        try {
+          const r = await fetch('/workouts');
+          const data = await r.json();
+          listEl.innerHTML = '';
+          for (const w of data.workouts || []) {
+            const li = document.createElement('li');
+            li.textContent = `${w.workout} — ${w.duration} min`;
+            listEl.appendChild(li);
+          }
+        } catch (e) {
+          setMsg('Failed to load workouts');
+        }
+      }
+
+      form.addEventListener('submit', async (e) => {
+        e.preventDefault();
+        msgEl.textContent = '';
+        const workout = workoutEl.value.trim();
+        const duration = Number(durationEl.value);
+        try {
+          const r = await fetch('/workouts', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ workout, duration })
+          });
+          if (r.ok) {
+            setMsg('Added!', true);
+            workoutEl.value = '';
+            durationEl.value = '';
+            await load();
+          } else {
+            const err = await r.json().catch(() => ({}));
+            setMsg(err.error || 'Failed to add');
+          }
+        } catch (e) {
+          setMsg('Network error');
+        }
+      });
+
+      load();
+    </script>
+  </body>
+  </html>
+

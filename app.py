@@ -1,4 +1,4 @@
-from flask import Flask, jsonify, request
+from flask import Flask, jsonify, request, render_template
 
 
 def create_app() -> Flask:
@@ -43,6 +43,10 @@ def create_app() -> Flask:
         item = {"workout": workout, "duration": duration}
         _workouts.append(item)
         return jsonify(item), 201
+
+    @app.get("/ui")
+    def ui():
+        return render_template("ui.html")
 
     return app
 
