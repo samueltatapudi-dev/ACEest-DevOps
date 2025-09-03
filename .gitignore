@@ -26,3 +26,9 @@ Thumbs.db
 # Misc
 *.log
 
+
+# Local environments and caches
+/.venv*/
+/__pycache__/
+/tests/__pycache__/
+/.pytest_cache/
