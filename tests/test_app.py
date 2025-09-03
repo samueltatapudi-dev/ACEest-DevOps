@@ -3,7 +3,8 @@ import pytest
 
 @pytest.fixture()
 def client():
-    from app import app
+    from app import create_app
+    app = create_app()
     with app.test_client() as c:
         yield c
 
@@ -20,4 +21,3 @@ def test_index(client):
     data = resp.get_json()
     assert data["app"] == "ACEest Fitness"
     assert "Welcome" in data["message"]
-
