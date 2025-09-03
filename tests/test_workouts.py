@@ -52,3 +52,17 @@ def test_workouts_non_integer_duration_rejected(client, bad_duration):
     resp = client.post("/workouts", json={"workout": "run", "duration": bad_duration})
     assert resp.status_code == 400
     assert "error" in resp.get_json()
+
+
+def test_workouts_missing_duration_key_rejected(client):
+    resp = client.post("/workouts", json={"workout": "run"})
+    assert resp.status_code == 400
+    assert "error" in resp.get_json()
+
+
+def test_workouts_large_duration_allowed(client):
+    # Large but valid integer should be accepted
+    large = 10_000_000
+    resp = client.post("/workouts", json={"workout": "ultra", "duration": large})
+    assert resp.status_code == 201
+    assert resp.get_json() == {"workout": "ultra", "duration": large}
