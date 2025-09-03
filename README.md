@@ -60,7 +60,7 @@ The workflow `.github/workflows/ci.yml` runs on every push:
 - Data is in-memory and resets on restart.
 - Duplicate workout names are rejected (case/whitespace-insensitive).
 
-## Project Summary (Beginner Friendly)
+## Project Summary
 
 This project is a small web application built with Python and Flask. It exposes a simple “workouts” API and also includes a minimal web page you can open in your browser to add and view workouts.
 
