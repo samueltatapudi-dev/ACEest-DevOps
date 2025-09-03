@@ -66,3 +66,13 @@ def test_workouts_large_duration_allowed(client):
     resp = client.post("/workouts", json={"workout": "ultra", "duration": large})
     assert resp.status_code == 201
     assert resp.get_json() == {"workout": "ultra", "duration": large}
+
+
+def test_workouts_reject_duplicate_names(client):
+    # Currently not implemented: expecting to fail in CI
+    first = client.post("/workouts", json={"workout": "run", "duration": 15})
+    assert first.status_code == 201
+    # Duplicate name should be rejected (feature gap)
+    dup = client.post("/workouts", json={"workout": "run", "duration": 20})
+    assert dup.status_code == 400
+    assert "error" in dup.get_json()
