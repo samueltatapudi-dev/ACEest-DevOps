@@ -6,6 +6,12 @@ def create_app() -> Flask:
 
     @app.get("/")
     def index():
+        # Serve the UI at root
+        return render_template("ui.html")
+
+    @app.get("/api")
+    def api_index():
+        # Previous JSON index preserved under /api
         return jsonify({"app": "ACEest Fitness", "message": "Welcome"})
 
     @app.get("/health")
