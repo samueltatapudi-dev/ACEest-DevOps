@@ -1,4 +1,4 @@
-from flask import Flask, jsonify
+from flask import Flask, jsonify, request
 
 
 def create_app() -> Flask:
@@ -18,6 +18,26 @@ def create_app() -> Flask:
     @app.get("/workouts")
     def list_workouts():
         return jsonify({"workouts": _workouts}), 200
+
+    @app.post("/workouts")
+    def add_workout():
+        data = request.get_json(silent=True)
+        if not isinstance(data, dict):
+            return jsonify({"error": "Invalid or missing JSON body"}), 400
+
+        workout = str(data.get("workout", "")).strip()
+        if not workout:
+            return jsonify({"error": "'workout' is required"}), 400
+
+        duration = data.get("duration", None)
+        if not isinstance(duration, int):
+            return jsonify({"error": "'duration' must be an integer"}), 400
+        if duration < 0:
+            return jsonify({"error": "'duration' must be non-negative"}), 400
+
+        item = {"workout": workout, "duration": duration}
+        _workouts.append(item)
+        return jsonify(item), 201
 
     return app
 
