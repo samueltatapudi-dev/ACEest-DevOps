@@ -35,6 +35,11 @@ def create_app() -> Flask:
         if duration < 0:
             return jsonify({"error": "'duration' must be non-negative"}), 400
 
+        # Reject duplicate workout names (case-insensitive, whitespace-insensitive)
+        normalized = workout.lower()
+        if any((w.get("workout", "").strip().lower() == normalized) for w in _workouts):
+            return jsonify({"error": "workout already exists"}), 400
+
         item = {"workout": workout, "duration": duration}
         _workouts.append(item)
         return jsonify(item), 201
