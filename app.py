@@ -12,6 +12,13 @@ def create_app() -> Flask:
     def health():
         return jsonify({"status": "ok"}), 200
 
+    # Simple in-memory workouts list for demo purposes
+    _workouts: list[dict] = []
+
+    @app.get("/workouts")
+    def list_workouts():
+        return jsonify({"workouts": _workouts}), 200
+
     return app
 
 
@@ -20,4 +27,3 @@ app = create_app()
 
 if __name__ == "__main__":
     app.run(host="0.0.0.0", port=5000)
-
