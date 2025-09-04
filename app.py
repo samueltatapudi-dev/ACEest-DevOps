@@ -45,8 +45,9 @@ def create_app() -> Flask:
         duration = data.get("duration", None)
         if not isinstance(duration, int):
             return jsonify({"error": "'duration' must be an integer"}), 400
-        if duration < 0:
-            return jsonify({"error": "'duration' must be non-negative"}), 400
+        # Duration must be strictly positive (no zero-minute workouts)
+        if duration <= 0:
+            return jsonify({"error": "'duration' must be > 0 minutes"}), 400
         if duration > max_duration:
             return jsonify({"error": f"'duration' must be <= {max_duration}"}), 400
 
