@@ -35,6 +35,8 @@ spec:
           ports:
             - containerPort: 5000
           env:
+            - name: ACEEST_VERSION
+              value: "ACEest_Fitness-V1.1.py"
             - name: PORT
               value: "5000"
 ---

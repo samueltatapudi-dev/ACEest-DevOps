@@ -2,7 +2,7 @@ import os
 from pathlib import Path
 from typing import Dict, Any
 
-from flask import Flask, jsonify, request
+from flask import Flask, jsonify, request, render_template
 
 
 VERSIONS_DIR = Path(__file__).resolve().parent.parent / "versions"
@@ -91,14 +91,19 @@ def create_app() -> Flask:
 
     @app.get("/")
     def index():
+        # Render a small dashboard
         ver = app.config["ACEEST_VERSION"]
         flags = app.config["ACEEST_FLAGS"]
-        return (
-            f"ACEest Fitness API (Flask)\n"
-            f"Selected desktop version: {ver}\n"
-            f"Features: {flags}",
-            200,
-            {"Content-Type": "text/plain; charset=utf-8"},
+        # discover available versions in /versions
+        if VERSIONS_DIR.exists():
+            files = sorted([p.name for p in VERSIONS_DIR.glob("*.py")])
+        else:
+            files = []
+        return render_template(
+            "dashboard.html",
+            selected=ver,
+            features=flags,
+            available_versions=files,
         )
 
     @app.get("/version")

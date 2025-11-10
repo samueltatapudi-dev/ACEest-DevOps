@@ -1,0 +1,91 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>ACEest Fitness - Dashboard</title>
+    <style>
+      body { font-family: Arial, sans-serif; margin: 2rem; background: #f7f8fb; color: #222; }
+      h1 { margin-top: 0; }
+      .card { background: #fff; border: 1px solid #e5e7eb; border-radius: 8px; padding: 1rem 1.25rem; margin-bottom: 1rem; }
+      label, select, button { font-size: 0.95rem; }
+      select { padding: .35rem .5rem; }
+      button { padding: .4rem .7rem; background: #2563eb; color: #fff; border: 0; border-radius: 4px; cursor: pointer; }
+      button:hover { background: #1d4ed8; }
+      pre { background: #0f172a; color: #e5e7eb; padding: .75rem; border-radius: 6px; overflow-x: auto; }
+      .row { display: flex; gap: 1rem; flex-wrap: wrap; }
+      .col { flex: 1 1 320px; }
+      .ok { color: #16a34a; }
+      .err { color: #dc2626; }
+    </style>
+  </head>
+  <body>
+    <h1>ACEest Fitness - Flask Dashboard</h1>
+
+    <div class="row">
+      <div class="col">
+        <div class="card">
+          <h3>Selected Version</h3>
+          <p><strong>{{ selected }}</strong></p>
+          <h4>Feature Flags</h4>
+          <pre>{{ features | tojson(indent=2) }}</pre>
+        </div>
+      </div>
+      <div class="col">
+        <div class="card">
+          <h3>Change Version</h3>
+          <label for="ver">Version file from versions/</label>
+          <select id="ver">
+            {% for v in available_versions %}
+              <option value="{{ v }}" {% if v == selected %}selected{% endif %}>{{ v }}</option>
+            {% endfor %}
+          </select>
+          <button id="apply">Apply</button>
+          <div id="msg"></div>
+        </div>
+      </div>
+    </div>
+
+    <div class="card">
+      <h3>Quick API Check</h3>
+      <button id="ping">GET /health</button>
+      <span id="health"></span>
+    </div>
+
+    <script>
+      const applyBtn = document.getElementById('apply');
+      const sel = document.getElementById('ver');
+      const msg = document.getElementById('msg');
+      const pingBtn = document.getElementById('ping');
+      const health = document.getElementById('health');
+
+      applyBtn.addEventListener('click', async () => {
+        msg.textContent = '';
+        try {
+          const r = await fetch('/admin/select-version', {
+            method: 'POST', headers: {'Content-Type':'application/json'},
+            body: JSON.stringify({ name: sel.value })
+          });
+          const data = await r.json();
+          if (!r.ok) throw new Error(data.error || 'Failed');
+          msg.innerHTML = '<span class="ok">Applied: '+ (data.selected || '') +'</span>';
+          setTimeout(() => location.reload(), 600);
+        } catch (e) {
+          msg.innerHTML = '<span class="err">'+ e.message +'</span>';
+        }
+      });
+
+      pingBtn.addEventListener('click', async () => {
+        health.textContent = '';
+        try {
+          const r = await fetch('/health');
+          const data = await r.json();
+          health.textContent = JSON.stringify(data);
+        } catch {
+          health.textContent = 'Error';
+        }
+      });
+    </script>
+  </body>
+  </html>
+

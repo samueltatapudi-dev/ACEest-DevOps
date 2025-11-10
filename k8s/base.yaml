@@ -31,6 +31,8 @@ spec:
           image: docker.io/YOUR_DOCKER_ID/aceest-fitness:latest
           imagePullPolicy: IfNotPresent
           env:
+            - name: ACEEST_VERSION
+              value: "ACEest_Fitness-V1.1.py"
             - name: PORT
               value: "5000"
             - name: MAX_DURATION
