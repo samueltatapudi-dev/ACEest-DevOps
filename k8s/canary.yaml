@@ -1,0 +1,83 @@
+apiVersion: v1
+kind: Namespace
+metadata:
+  name: aceest
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: aceest-fitness-stable
+  namespace: aceest
+  labels:
+    app: aceest-fitness
+    track: stable
+    strategy: canary
+spec:
+  replicas: 3
+  selector:
+    matchLabels:
+      app: aceest-fitness
+      track: stable
+  template:
+    metadata:
+      labels:
+        app: aceest-fitness
+        track: stable
+        role: web
+    spec:
+      containers:
+        - name: web
+          image: docker.io/YOUR_DOCKER_ID/aceest-fitness:stable
+          ports:
+            - containerPort: 5000
+          env:
+            - name: PORT
+              value: "5000"
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: aceest-fitness-canary
+  namespace: aceest
+  labels:
+    app: aceest-fitness
+    track: canary
+    strategy: canary
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: aceest-fitness
+      track: canary
+  template:
+    metadata:
+      labels:
+        app: aceest-fitness
+        track: canary
+        role: web
+    spec:
+      containers:
+        - name: web
+          image: docker.io/YOUR_DOCKER_ID/aceest-fitness:canary
+          ports:
+            - containerPort: 5000
+          env:
+            - name: PORT
+              value: "5000"
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: aceest-fitness
+  namespace: aceest
+  labels:
+    app: aceest-fitness
+    strategy: canary
+spec:
+  selector:
+    app: aceest-fitness
+    role: web
+  ports:
+    - name: http
+      port: 80
+      targetPort: 5000

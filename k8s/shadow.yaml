@@ -1,0 +1,99 @@
+apiVersion: v1
+kind: Namespace
+metadata:
+  name: aceest
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: aceest-fitness-stable
+  namespace: aceest
+  labels:
+    app: aceest-fitness
+    channel: stable
+    strategy: shadow
+spec:
+  replicas: 3
+  selector:
+    matchLabels:
+      app: aceest-fitness
+      channel: stable
+  template:
+    metadata:
+      labels:
+        app: aceest-fitness
+        channel: stable
+        role: web
+    spec:
+      containers:
+        - name: web
+          image: docker.io/YOUR_DOCKER_ID/aceest-fitness:stable
+          ports:
+            - containerPort: 5000
+          env:
+            - name: PORT
+              value: "5000"
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: aceest-fitness-shadow
+  namespace: aceest
+  labels:
+    app: aceest-fitness
+    channel: shadow
+    strategy: shadow
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: aceest-fitness
+      channel: shadow
+  template:
+    metadata:
+      labels:
+        app: aceest-fitness
+        channel: shadow
+        role: web
+    spec:
+      containers:
+        - name: web
+          image: docker.io/YOUR_DOCKER_ID/aceest-fitness:shadow
+          ports:
+            - containerPort: 5000
+          env:
+            - name: PORT
+              value: "5000"
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: aceest-fitness
+  namespace: aceest
+  labels:
+    app: aceest-fitness
+    channel: stable
+spec:
+  selector:
+    app: aceest-fitness
+    channel: stable
+  ports:
+    - name: http
+      port: 80
+      targetPort: 5000
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: aceest-fitness-shadow
+  namespace: aceest
+  annotations:
+    aceest.dev/traffic-note: "Mirror production traffic to this ClusterIP via your ingress or test harness."
+spec:
+  selector:
+    app: aceest-fitness
+    channel: shadow
+  ports:
+    - name: http
+      port: 8081
+      targetPort: 5000

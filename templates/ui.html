@@ -59,8 +59,8 @@
       <select id="sort">
         <option value="new">Newest first</option>
         <option value="old">Oldest first</option>
-        <option value="name">Name A→Z</option>
-        <option value="duration">Duration high→low</option>
+        <option value="name">Name A-Z</option>
+        <option value="duration">Duration high-low</option>
       </select>
       <button id="refreshBtn" type="button">Refresh</button>
     </div>
@@ -96,7 +96,7 @@
         listEl.innerHTML = '';
         for (const w of items) {
           const li = document.createElement('li');
-          li.textContent = `${w.workout} — ${w.duration} min`;
+          li.textContent = `${w.workout} - ${w.duration} min`;
           listEl.appendChild(li);
         }
       }
