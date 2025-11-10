@@ -79,11 +79,14 @@ pipeline {
         stage('SonarQube Analysis') {
             steps {
                 withSonarQubeEnv('SonarQubeServer') {
-                    sh '''
-                        . ${VENV_DIR}/bin/activate
-                        sonar-scanner \
-                          -Dsonar.projectVersion=${RELEASE_VERSION}
-                    '''
+                    script {
+                        def scannerHome = tool name: 'SonarScanner', type: 'hudson.plugins.sonar.SonarRunnerInstallation'
+                        sh """
+                            . ${VENV_DIR}/bin/activate
+                            "${scannerHome}/bin/sonar-scanner" \
+                              -Dsonar.projectVersion=${RELEASE_VERSION}
+                        """
+                    }
                 }
             }
         }
